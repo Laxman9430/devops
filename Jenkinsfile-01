@@ -1,0 +1,29 @@
+pipeline {
+	agent any
+	tools {
+		maven 'mvn_home'
+		}
+	stages{
+		stage('checkout code'){
+			steps{
+				git 'https://github.com/rajesh0335/devops.git'
+				}
+			}
+		stage('maven build'){
+			steps{
+				sh "mvn clean package"
+			}
+		}
+		stage('junit test cases'){
+			steps{
+				junit 'target/surefire-reports/*.xml'
+				}
+		}
+		stage('Archive Artifcats'){
+			steps{
+				archiveArtifacts artifacts: 'target/*.?ar', followSymlinks: false
+			}
+		}
+		
+	}
+}

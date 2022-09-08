@@ -1,0 +1,43 @@
+pipeline {
+	agent any
+	tools {
+		maven 'mvn_local'
+		}
+	stages {
+		stage('clone'){
+			steps{
+			git 'https://github.com/rajesh0335/devops.git'
+			}
+		}
+	stage('build'){
+			steps{
+			sh 'mvn clean install'
+			}
+	}
+	stage('junit test cases'){
+		steps{
+			junit 'target/surefire-reports/*.xml'
+			}
+	}
+	stage('artifacts') {
+		steps{
+		archiveArtifacts artifacts: 'target/*.?ar', followSymlinks: false
+		}
+	}
+	
+	}
+	post{
+		success {
+			notify('success')
+		}
+		failure {
+			notify("failed")
+		}
+		
+	}
+}
+
+def notify(status) {
+			slackSend channel: 'learning-devops', color: '#00FF00', iconEmoji: 'thumbsup', message: "Build ${status}:${env.JOB_NAME}: ${env.BUILD_NUMBER}: ${BUILD_URL}", teamDomain: 'devops-hmy7283', tokenCredentialId: 'Slack-user'
+			emailext body: 'build has been completed successfully', subject: 'Build status', to: 'mekala.rajeshkumar@gmail.com'
+}	
